@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ja as t } from './translations';
 import { askConcierge } from './services/gemini';
 
@@ -10,10 +10,8 @@ const App: React.FC = () => {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiSources, setAiSources] = useState<string[]>([]);
   
-  // フォーム送信状態管理
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Scroll animations observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -58,7 +56,6 @@ const App: React.FC = () => {
       message: formData.get('message'),
     };
 
-    // --- ここにデプロイしたGASのURLを貼り付けてください ---
     const GAS_URL = 'YOUR_GAS_WEBAPP_URL_HERE'; 
 
     try {
@@ -103,17 +100,14 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0b0b0c]">
-      {/* Header */}
       <header className="fixed top-0 left-0 w-full z-50 bg-[#0b0b0c]/90 backdrop-blur-md border-b border-[#d4af3726] safe-top">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between lg:grid lg:grid-cols-3">
-          {/* Left: Brand */}
           <div className="flex justify-start">
             <button onClick={() => scrollTo('top')} className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-left" style={{ color: gold }}>
               {t.brand}
             </button>
           </div>
 
-          {/* Center: Desktop Nav */}
           <nav className="hidden lg:flex items-center justify-center space-x-8 text-sm font-medium tracking-widest">
             {navItems.map((item) => (
               <button 
@@ -126,7 +120,6 @@ const App: React.FC = () => {
             ))}
           </nav>
 
-          {/* Right: Mobile Actions / Spacer */}
           <div className="flex items-center justify-end">
             <button 
               className="lg:hidden p-1.5 text-[#d4af37] hover:bg-[#d4af371a] rounded-lg transition-colors"
@@ -140,7 +133,6 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Overlay */}
         <div className={`lg:hidden absolute top-full left-0 w-full bg-[#0b0b0c] border-b border-[#d4af3726] transition-all duration-300 overflow-hidden ${isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
           <nav className="px-6 py-8 flex flex-col space-y-6">
             {navItems.map((item) => (
@@ -156,7 +148,6 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section id="top" className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
@@ -248,13 +239,13 @@ const App: React.FC = () => {
             </form>
 
             {aiMessage && (
-              <div className="bg-[#0b0b0c]/50 rounded-xl sm:rounded-2xl p-5 sm:p-7 border border-[#d4af371a] animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <div className="prose prose-invert max-w-none text-sm sm:text-base leading-relaxed whitespace-pre-wrap opacity-90">
+              <div className="bg-[#0b0b0c]/50 rounded-xl sm:rounded-2xl p-6 sm:p-10 border border-[#d4af371a] animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div className="max-w-none text-base sm:text-lg leading-[1.8] whitespace-pre-wrap opacity-95 text-[#e6e4df]">
                   {aiMessage}
                 </div>
                 {aiSources.length > 0 && (
-                  <div className="mt-5 pt-5 border-t border-[#d4af371a]">
-                    <p className="text-[10px] uppercase tracking-widest text-[#d4af37] mb-3 font-bold opacity-60">Verified Sources</p>
+                  <div className="mt-8 pt-8 border-t border-[#d4af371a]">
+                    <p className="text-[10px] uppercase tracking-widest text-[#d4af37] mb-4 font-bold opacity-60">Verified Sources</p>
                     <ul className="flex flex-wrap gap-2">
                       {aiSources.map((url, i) => (
                         <li key={i}>
@@ -272,7 +263,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* About Us */}
       <section id="about" className="py-20 sm:py-32 px-4 sm:px-6 bg-[#0c0d0e]">
         <div className="max-w-4xl mx-auto text-center fade-in-section">
           <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-6 sm:mb-10 tracking-tight">{t.about_title}</h2>
@@ -292,7 +282,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Services Grid */}
       <section id="service" className="py-20 sm:py-32 px-4 sm:px-6 bg-[#0b0b0c]">
         <div className="max-w-7xl mx-auto text-center mb-16 fade-in-section">
           <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-4">{t.service_title}</h2>
@@ -321,7 +310,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Founder Message */}
       <section id="greeting" className="py-20 sm:py-32 px-4 sm:px-6 bg-[#141516]">
         <div className="max-w-4xl mx-auto text-center fade-in-section">
           <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-6 tracking-tight">{t.greeting_title}</h2>
@@ -343,7 +331,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Company Info */}
       <section id="company" className="py-20 sm:py-32 px-4 sm:px-6 bg-[#0c0d0e]">
         <div className="max-w-4xl mx-auto text-center fade-in-section">
           <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-6 tracking-tight">{t.company_title}</h2>
@@ -355,7 +342,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Contact Form */}
       <section id="contact" className="py-20 sm:py-32 px-4 sm:px-6 bg-[#0b0b0c]">
         <div className="max-w-4xl mx-auto fade-in-section">
           <div className="text-center mb-16">
@@ -401,7 +387,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-[#050607] pt-20 pb-12 px-6 border-t border-[#d4af371a]">
         <div className="max-w-7xl mx-auto flex flex-col items-center">
           <button onClick={() => scrollTo('top')} className="font-serif text-2xl sm:text-3xl font-bold tracking-tight mb-8" style={{ color: gold }}>
