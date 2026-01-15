@@ -15,7 +15,6 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
             {lines.map((line, lIdx) => {
               const trimmedLine = line.trim();
               
-              // 見出し (###)
               if (trimmedLine.startsWith('###')) {
                 const content = trimmedLine.replace(/^###\s*/, '').replace(/\*\*/g, '');
                 return (
@@ -25,7 +24,6 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
                 );
               }
 
-              // 小見出し (####)
               if (trimmedLine.startsWith('####')) {
                 const content = trimmedLine.replace(/^####\s*/, '').replace(/\*\*/g, '');
                 return (
@@ -36,7 +34,6 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
                 );
               }
 
-              // 箇条書き (* または -)
               if (trimmedLine.startsWith('* ') || trimmedLine.startsWith('- ')) {
                 const content = trimmedLine.replace(/^[*-]\s*/, '');
                 const formattedContent = content.split(/(\*\*.*?\*\*)/).map((part, pIdx) => {
@@ -53,7 +50,6 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
                 );
               }
 
-              // 通常の段落
               if (trimmedLine === '') return <div key={lIdx} className="h-2" />;
               
               const formattedLine = line.split(/(\*\*.*?\*\*)/).map((part, pIdx) => {
@@ -109,14 +105,26 @@ const App: React.FC = () => {
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    // ユーザーから提供されたGASのウェブアプリURLを設定
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzws3zSfRs0a4VjYgwxDPUBOB-qejJZqxWSxuisVawPcZSl0D5nB3OCHcyemFyYX4jX/exec'; 
+    
     const formData = new FormData(e.currentTarget);
-    const GAS_URL = 'YOUR_GAS_WEBAPP_URL_HERE'; 
+    const data = Object.fromEntries(formData);
+
     try {
-      await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(Object.fromEntries(formData)) });
-      alert('お問い合わせありがとうございます。');
+      // GASのCORS制約を回避するため mode: 'no-cors' で送信
+      await fetch(GAS_URL, { 
+        method: 'POST', 
+        mode: 'no-cors', 
+        body: JSON.stringify(data) 
+      });
+      
+      alert('お問い合わせありがとうございます。担当者より折り返しご連絡させていただきます。');
       (e.target as HTMLFormElement).reset();
     } catch (error) {
-      alert('送信中にエラーが発生しました。');
+      console.error('Submission error:', error);
+      alert('送信中にエラーが発生しました。お手数ですが islandmakana@gmail.com まで直接ご連絡いただけますと幸いです。');
     } finally {
       setIsSubmitting(false);
     }
@@ -297,7 +305,6 @@ const App: React.FC = () => {
                     </div>
                   )}
                   
-                  {/* AI Disclaimer */}
                   <div className="text-[10px] sm:text-xs text-[#e6e4df] opacity-40 leading-relaxed italic border-l-2 border-[#d4af3733] pl-4">
                     ※ AIコンシェルジュの回答は必ずしも正確でない場合があります。重要な情報や緊急のご相談については、必ず公的機関や弊社スタッフへ直接ご確認ください。
                   </div>
