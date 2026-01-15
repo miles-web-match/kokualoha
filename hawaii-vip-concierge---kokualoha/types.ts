@@ -32,8 +32,14 @@ export interface TranslationSchema {
   svc6_title: string;
   svc6_desc: string;
   company_title: string;
-  company_name: string;
-  company_desc: string;
+  company_name_label: string;
+  company_name_value: string;
+  company_address_label: string;
+  company_address_value: string;
+  company_rep_label: string;
+  company_rep_value: string;
+  company_biz_label: string;
+  company_biz_value: string;
   contact_title: string;
   contact_subtitle: string;
   contact_name: string;
