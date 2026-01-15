@@ -51,4 +51,5 @@ export interface TranslationSchema {
   footer_copyright: string;
   ai_assistant_title: string;
   ai_assistant_placeholder: string;
+  ai_assistant_disclaimer: string;
 }
