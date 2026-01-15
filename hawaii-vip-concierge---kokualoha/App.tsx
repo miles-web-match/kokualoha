@@ -79,6 +79,7 @@ const App: React.FC = () => {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiSources, setAiSources] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitSuccess, setIsSubmitSuccess] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -118,7 +119,7 @@ const App: React.FC = () => {
         body: JSON.stringify(data) 
       });
       
-      alert('お問い合わせありがとうございます。担当者より折り返しご連絡させていただきます。');
+      setIsSubmitSuccess(true);
       (e.target as HTMLFormElement).reset();
     } catch (error) {
       console.error('Submission error:', error);
@@ -405,17 +406,39 @@ const App: React.FC = () => {
         <div className="max-w-4xl mx-auto fade-in-section text-center">
           <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-4 tracking-tight">{t.contact_title}</h2>
           <p className="text-[#d4af37] mb-16">{t.contact_subtitle}</p>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left" onSubmit={handleContactSubmit}>
-            <input name="name" type="text" placeholder={t.contact_name} className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" required />
-            <input name="email" type="email" placeholder={t.contact_email} className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" required />
-            <input name="phone" type="tel" placeholder={t.contact_phone} className="bg-[#17181a] md:col-span-2 border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" />
-            <textarea name="message" rows={5} placeholder={t.contact_message} className="bg-[#17181a] md:col-span-2 border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all resize-none text-sm text-[#e6e4df]" required />
-            <div className="md:col-span-2 flex justify-center pt-6">
-              <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-16 py-5 bg-[#d4af37] text-black font-bold rounded-full hover:bg-[#c29d2e] transition-all transform hover:scale-105 shadow-xl shadow-[#d4af372a] disabled:opacity-50">
-                {isSubmitting ? '送信中...' : t.contact_send}
+          
+          {isSubmitSuccess ? (
+            <div className="bg-[#17181a] border border-[#d4af3766] rounded-3xl p-12 sm:p-20 animate-in fade-in zoom-in duration-500">
+              <div className="w-20 h-20 bg-[#d4af371a] rounded-full flex items-center justify-center mx-auto mb-8">
+                <svg className="w-10 h-10 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold mb-4 text-[#d4af37]">お問い合わせありがとうございます</h3>
+              <p className="text-[#e6e4df] opacity-80 mb-8 leading-relaxed">
+                内容を確認し、24時間以内に担当スタッフより折り返しご連絡させていただきます。<br className="hidden sm:block" />
+                自動返信メールが届いておりますので、あわせてご確認ください。
+              </p>
+              <button 
+                onClick={() => setIsSubmitSuccess(false)}
+                className="text-[#d4af37] font-bold border-b border-[#d4af37] pb-1 hover:opacity-70 transition-opacity"
+              >
+                フォームに戻る
               </button>
             </div>
-          </form>
+          ) : (
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left" onSubmit={handleContactSubmit}>
+              <input name="name" type="text" placeholder={t.contact_name} className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" required />
+              <input name="email" type="email" placeholder={t.contact_email} className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" required />
+              <input name="phone" type="tel" placeholder={t.contact_phone} className="bg-[#17181a] md:col-span-2 border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" />
+              <textarea name="message" rows={5} placeholder={t.contact_message} className="bg-[#17181a] md:col-span-2 border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all resize-none text-sm text-[#e6e4df]" required />
+              <div className="md:col-span-2 flex justify-center pt-6">
+                <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-16 py-5 bg-[#d4af37] text-black font-bold rounded-full hover:bg-[#c29d2e] transition-all transform hover:scale-105 shadow-xl shadow-[#d4af372a] disabled:opacity-50">
+                  {isSubmitting ? '送信中...' : t.contact_send}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </section>
 
