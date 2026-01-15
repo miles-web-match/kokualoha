@@ -106,14 +106,12 @@ const App: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // ユーザーから提供されたGASのウェブアプリURLを設定
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzws3zSfRs0a4VjYgwxDPUBOB-qejJZqxWSxuisVawPcZSl0D5nB3OCHcyemFyYX4jX/exec'; 
     
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
 
     try {
-      // GASのCORS制約を回避するため mode: 'no-cors' で送信
       await fetch(GAS_URL, { 
         method: 'POST', 
         mode: 'no-cors', 
@@ -367,6 +365,33 @@ const App: React.FC = () => {
             <div className="space-y-6 opacity-80 leading-relaxed text-sm sm:text-base italic text-left relative z-10">
               {t.greeting_body_long.split('\n\n').map((para, i) => (<p key={i}>"{para}"</p>))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="company" className="py-20 sm:py-32 px-4 sm:px-6 bg-[#0c0d0e]">
+        <div className="max-w-4xl mx-auto fade-in-section">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-6 tracking-tight">{t.company_title}</h2>
+            <div className="w-16 h-1 bg-[#d4af37] mx-auto" />
+          </div>
+          
+          <div className="bg-[#17181a] border border-[#d4af371a] rounded-[2rem] overflow-hidden shadow-2xl">
+            {[
+              { label: t.company_name_label, value: t.company_name_value },
+              { label: t.company_address_label, value: t.company_address_value },
+              { label: t.company_rep_label, value: t.company_rep_value },
+              { label: t.company_biz_label, value: t.company_biz_value },
+            ].map((row, i) => (
+              <div key={i} className={`flex flex-col sm:flex-row border-b border-[#d4af371a] last:border-0`}>
+                <div className="sm:w-1/3 bg-[#d4af3708] px-8 py-6 text-[#d4af37] font-bold text-sm tracking-widest uppercase">
+                  {row.label}
+                </div>
+                <div className="sm:w-2/3 px-8 py-6 text-[#e6e4df] opacity-80 text-sm sm:text-base leading-relaxed">
+                  {row.value}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
