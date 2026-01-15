@@ -12,10 +12,22 @@ export const askConcierge = async (prompt: string) => {
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const systemInstruction = "あなたはハワイの高級コンシェルジュサービス『コクアロハ』のAIアシスタントです。ユーザーのハワイ滞在に関する質問に、親切かつプロフェッショナルに、日本語の敬語で答えてください。";
+  
+  // 高級コンシェルジュらしい、記号に頼らない美しいフォーマットを指示
+  const systemInstruction = `あなたはハワイの高級コンシェルジュサービス『コクアロハ』の専属AIアシスタントです。
+以下のガイドラインに従って、美しく読みやすい回答を作成してください：
+
+1. **記号の制限**: 太字記号（**）を多用しないでください。重要なキーワードに絞るか、代わりに改行や箇条書き（・）を活用してください。
+2. **視覚的な余白**: セクションごとに必ず1行空け、読み手が疲れないレイアウトにしてください。
+3. **おもてなしの構造**: 
+   - 冒頭：丁寧な挨拶と共感の言葉
+   - 本文：項目ごとに整理（適宜、ハワイを感じる絵文字を添える）
+   - 結び：さらにサポートが必要な場合の案内
+4. **トーン**: プロフェッショナルかつ温かみのある日本語（敬語）で。
+
+最新の現地情報が必要な場合は、Google Searchを使用して正確なデータを提供してください。`;
 
   try {
-    // 1回目の試行: Google Search（グラウンディング）あり
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
@@ -32,17 +44,15 @@ export const askConcierge = async (prompt: string) => {
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     
-    // 429エラー（利用制限）の場合
     if (error.message?.includes("429") || error.message?.includes("quota")) {
       return { 
-        text: "【利用制限エラー】Gemini APIの無料枠の上限に達したか、Google検索機能の制限を超えました。しばらく時間をおいてから再度お試しいただくか、Google AI Studioで支払い情報（Billing）の設定を確認してください。", 
+        text: "【利用制限】現在アクセスが集中しております。1分ほどおいてから再度お試しいただくか、Google AI Studioの支払い設定をご確認ください。", 
         sources: [] 
       };
     }
 
-    // その他のエラー
     return { 
-      text: "申し訳ありません。現在AIアシスタントに接続できません。エラー詳細: " + (error.message || "Unknown error"), 
+      text: "申し訳ありません。現在AIコンシェルジュが席を外しております。時間をおいて再度お声がけください。", 
       sources: [] 
     };
   }
