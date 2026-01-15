@@ -51,6 +51,7 @@ export const en: TranslationSchema = {
   footer_copyright: '© Kokualoha',
   ai_assistant_title: 'Hawaii Virtual Concierge',
   ai_assistant_placeholder: 'Ask me anything about your stay in Hawaii...',
+  ai_assistant_disclaimer: '※Information provided may differ from current status. Please verify directly with official sources or our staff.',
 };
 
 export const ja: TranslationSchema = {
@@ -103,4 +104,5 @@ export const ja: TranslationSchema = {
   footer_copyright: '© コクアロハ',
   ai_assistant_title: 'ハワイ・バーチャル・コンシェルジュ',
   ai_assistant_placeholder: 'ハワイ滞在に関するご質問にお答えします...',
+  ai_assistant_disclaimer: '※ご案内の内容が最新情報と異なる場合がございます。重要な判断については、公的機関や弊社スタッフへ直接ご確認ください。',
 };
