@@ -3,6 +3,82 @@ import { useState, useEffect } from 'react';
 import { ja as t } from './translations';
 import { askConcierge } from './services/gemini';
 
+// シンプルなMarkdownレンダラーコンポーネント
+const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
+  // 1. セクション（---）で分割
+  const sections = text.split(/^---$/gm);
+
+  return (
+    <div className="space-y-6">
+      {sections.map((section, sIdx) => {
+        const lines = section.trim().split('\n');
+        return (
+          <div key={sIdx} className="space-y-3">
+            {lines.map((line, lIdx) => {
+              const trimmedLine = line.trim();
+              
+              // 見出し (###)
+              if (trimmedLine.startsWith('###')) {
+                const content = trimmedLine.replace(/^###\s*/, '').replace(/\*\*/g, '');
+                return (
+                  <h3 key={lIdx} className="text-xl sm:text-2xl font-serif font-bold text-[#d4af37] mt-8 mb-4 border-b border-[#d4af3733] pb-2">
+                    {content}
+                  </h3>
+                );
+              }
+
+              // 小見出し (####)
+              if (trimmedLine.startsWith('####')) {
+                const content = trimmedLine.replace(/^####\s*/, '').replace(/\*\*/g, '');
+                return (
+                  <h4 key={lIdx} className="text-lg font-bold text-[#e6e4df] mt-6 mb-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-[#d4af37] rounded-full"></span>
+                    {content}
+                  </h4>
+                );
+              }
+
+              // 箇条書き (* または -)
+              if (trimmedLine.startsWith('* ') || trimmedLine.startsWith('- ')) {
+                const content = trimmedLine.replace(/^[*-]\s*/, '');
+                // 箇条書き内の太字処理
+                const formattedContent = content.split(/(\*\*.*?\*\*)/).map((part, pIdx) => {
+                  if (part.startsWith('**') && part.endsWith('**')) {
+                    return <strong key={pIdx} className="text-[#d4af37] font-bold">{part.slice(2, -2)}</strong>;
+                  }
+                  return part;
+                });
+                return (
+                  <div key={lIdx} className="flex gap-3 pl-4 py-1">
+                    <span className="text-[#d4af37] shrink-0">•</span>
+                    <p className="text-[#e6e4df] opacity-90">{formattedContent}</p>
+                  </div>
+                );
+              }
+
+              // 通常の段落（太字処理込み）
+              if (trimmedLine === '') return <div key={lIdx} className="h-2" />;
+              
+              const formattedLine = line.split(/(\*\*.*?\*\*)/).map((part, pIdx) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                  return <strong key={pIdx} className="text-[#d4af37] font-bold">{part.slice(2, -2)}</strong>;
+                }
+                return part;
+              });
+
+              return (
+                <p key={lIdx} className="text-[#e6e4df] leading-[1.8] opacity-90">
+                  {formattedLine}
+                </p>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [aiMessage, setAiMessage] = useState<string>('');
@@ -239,10 +315,8 @@ const App: React.FC = () => {
             </form>
 
             {aiMessage && (
-              <div className="bg-[#0b0b0c]/50 rounded-xl sm:rounded-2xl p-6 sm:p-10 border border-[#d4af371a] animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <div className="max-w-none text-base sm:text-lg leading-[1.8] whitespace-pre-wrap opacity-95 text-[#e6e4df]">
-                  {aiMessage}
-                </div>
+              <div className="bg-[#0b0b0c]/50 rounded-xl sm:rounded-2xl p-6 sm:p-10 border border-[#d4af371a] animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-inner">
+                <MarkdownText text={aiMessage} />
                 {aiSources.length > 0 && (
                   <div className="mt-8 pt-8 border-t border-[#d4af371a]">
                     <p className="text-[10px] uppercase tracking-widest text-[#d4af37] mb-4 font-bold opacity-60">Verified Sources</p>
