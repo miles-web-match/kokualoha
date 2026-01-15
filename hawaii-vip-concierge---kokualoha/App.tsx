@@ -107,7 +107,8 @@ const App: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzws3zSfRs0a4VjYgwxDPUBOB-qejJZqxWSxuisVawPcZSl0D5nB3OCHcyemFyYX4jX/exec'; 
+    // 最新のスクリプトIDに更新
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycby8OPSeTxlJUNqlxotg1KZZNwRkDr7jR4DC-_I2x3K3jiLeB-kSh9iLzID8K5wWX4Fz/exec'; 
     
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
