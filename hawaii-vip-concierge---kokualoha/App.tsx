@@ -3,11 +3,9 @@ import { useState, useEffect } from 'react';
 import { ja as t } from './translations';
 import { askConcierge } from './services/gemini';
 
-// シンプルなMarkdownレンダラーコンポーネント
+// --- Markdown Component ---
 const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
-  // 1. セクション（---）で分割
   const sections = text.split(/^---$/gm);
-
   return (
     <div className="space-y-6">
       {sections.map((section, sIdx) => {
@@ -41,7 +39,6 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
               // 箇条書き (* または -)
               if (trimmedLine.startsWith('* ') || trimmedLine.startsWith('- ')) {
                 const content = trimmedLine.replace(/^[*-]\s*/, '');
-                // 箇条書き内の太字処理
                 const formattedContent = content.split(/(\*\*.*?\*\*)/).map((part, pIdx) => {
                   if (part.startsWith('**') && part.endsWith('**')) {
                     return <strong key={pIdx} className="text-[#d4af37] font-bold">{part.slice(2, -2)}</strong>;
@@ -50,13 +47,13 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
                 });
                 return (
                   <div key={lIdx} className="flex gap-3 pl-4 py-1">
-                    <span className="text-[#d4af37] shrink-0">•</span>
+                    <span className="text-[#d4af37] shrink-0 font-bold">•</span>
                     <p className="text-[#e6e4df] opacity-90">{formattedContent}</p>
                   </div>
                 );
               }
 
-              // 通常の段落（太字処理込み）
+              // 通常の段落
               if (trimmedLine === '') return <div key={lIdx} className="h-2" />;
               
               const formattedLine = line.split(/(\*\*.*?\*\*)/).map((part, pIdx) => {
@@ -67,7 +64,7 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
               });
 
               return (
-                <p key={lIdx} className="text-[#e6e4df] leading-[1.8] opacity-90">
+                <p key={lIdx} className="text-[#e6e4df] leading-[1.8] opacity-95">
                   {formattedLine}
                 </p>
               );
@@ -85,24 +82,13 @@ const App: React.FC = () => {
   const [aiInput, setAiInput] = useState<string>('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiSources, setAiSources] = useState<string[]>([]);
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const elements = document.querySelectorAll('.fade-in-section');
-    elements.forEach((el) => observer.observe(el));
-
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('is-visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in-section').forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
@@ -123,32 +109,14 @@ const App: React.FC = () => {
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     const formData = new FormData(e.currentTarget);
-    const data = {
-      name: formData.get('name'),
-      email: formData.get('email'),
-      phone: formData.get('phone'),
-      message: formData.get('message'),
-    };
-
     const GAS_URL = 'YOUR_GAS_WEBAPP_URL_HERE'; 
-
     try {
-      await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      alert('お問い合わせありがとうございます。自動返信メールを送信しましたのでご確認ください。');
+      await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(Object.fromEntries(formData)) });
+      alert('お問い合わせありがとうございます。');
       (e.target as HTMLFormElement).reset();
     } catch (error) {
-      console.error('Submission error:', error);
-      alert('送信中にエラーが発生しました。お手数ですが islandmakana@gmail.com まで直接ご連絡ください。');
+      alert('送信中にエラーが発生しました。');
     } finally {
       setIsSubmitting(false);
     }
@@ -156,11 +124,8 @@ const App: React.FC = () => {
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    } else if (id === 'top') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    else if (id === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsMenuOpen(false);
   };
 
@@ -276,15 +241,13 @@ const App: React.FC = () => {
           <div className="bg-[#17181a] rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-10 border border-[#d4af3733] shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37] opacity-[0.03] blur-3xl pointer-events-none" />
             
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-8 text-center sm:text-left">
+            <div className="flex items-center gap-4 mb-8">
               <div className="w-14 h-14 bg-[#d4af37] rounded-2xl flex items-center justify-center text-black shadow-lg shadow-[#d4af3733] shrink-0">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
               </div>
-              <div className="pt-1">
-                <h3 className="text-xl sm:text-2xl font-bold text-[#d4af37] mb-1">{t.ai_assistant_title}</h3>
-              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-[#d4af37]">{t.ai_assistant_title}</h3>
             </div>
             
             <form onSubmit={handleAiAsk} className="relative mb-6">
@@ -317,20 +280,28 @@ const App: React.FC = () => {
             {aiMessage && (
               <div className="bg-[#0b0b0c]/50 rounded-xl sm:rounded-2xl p-6 sm:p-10 border border-[#d4af371a] animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-inner">
                 <MarkdownText text={aiMessage} />
-                {aiSources.length > 0 && (
-                  <div className="mt-8 pt-8 border-t border-[#d4af371a]">
-                    <p className="text-[10px] uppercase tracking-widest text-[#d4af37] mb-4 font-bold opacity-60">Verified Sources</p>
-                    <ul className="flex flex-wrap gap-2">
-                      {aiSources.map((url, i) => (
-                        <li key={i}>
-                          <a href={url} target="_blank" rel="noopener noreferrer" className="text-[10px] bg-[#d4af371a] px-3 py-1.5 rounded-lg border border-[#d4af3726] hover:bg-[#d4af3733] transition-colors overflow-hidden text-ellipsis max-w-[150px] inline-block whitespace-nowrap">
-                            {new URL(url).hostname}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+                
+                <div className="mt-8 pt-8 border-t border-[#d4af371a] flex flex-col gap-6">
+                  {aiSources.length > 0 && (
+                    <div>
+                      <p className="text-[10px] uppercase tracking-widest text-[#d4af37] mb-4 font-bold opacity-60">Verified Sources</p>
+                      <ul className="flex flex-wrap gap-2">
+                        {aiSources.map((url, i) => (
+                          <li key={i}>
+                            <a href={url} target="_blank" rel="noopener noreferrer" className="text-[10px] bg-[#d4af371a] px-3 py-1.5 rounded-lg border border-[#d4af3726] hover:bg-[#d4af3733] transition-colors inline-block whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">
+                              {new URL(url).hostname}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {/* AI Disclaimer */}
+                  <div className="text-[10px] sm:text-xs text-[#e6e4df] opacity-40 leading-relaxed italic border-l-2 border-[#d4af3733] pl-4">
+                    ※ AIコンシェルジュの回答は必ずしも正確でない場合があります。重要な情報や緊急のご相談については、必ず公的機関や弊社スタッフへ直接ご確認ください。
                   </div>
-                )}
+                </div>
               </div>
             )}
           </div>
@@ -341,16 +312,12 @@ const App: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center fade-in-section">
           <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-6 sm:mb-10 tracking-tight">{t.about_title}</h2>
           <div className="w-16 h-1 bg-[#d4af37] mx-auto mb-10 sm:mb-14" />
-          
           <div className="space-y-10">
             <p className="text-xl sm:text-3xl text-[#d4af37] font-medium leading-tight max-w-3xl mx-auto">
               {t.about_desc}
             </p>
-            
             <div className="space-y-8 opacity-80 leading-relaxed text-sm sm:text-lg max-w-3xl mx-auto text-left">
-              {t.about_desc_long.split('\n\n').map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
+              {t.about_desc_long.split('\n\n').map((para, i) => (<p key={i}>{para}</p>))}
             </div>
           </div>
         </div>
@@ -389,72 +356,26 @@ const App: React.FC = () => {
           <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-6 tracking-tight">{t.greeting_title}</h2>
           <div className="w-16 h-1 bg-[#d4af37] mx-auto mb-12" />
           <div className="bg-[#17181a] p-8 sm:p-16 rounded-[2rem] border border-[#d4af371a] max-w-3xl mx-auto shadow-2xl relative overflow-hidden">
-            <div className="absolute top-8 left-8 text-[#d4af37] opacity-10 select-none">
-              <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 7.55228 14.017 7V3L17.017 3C19.7784 3 22.017 5.23858 22.017 8V15C22.017 18.3137 19.3307 21 16.017 21H14.017ZM2.017 21L2.017 18C2.017 16.8954 2.91243 16 4.017 16H7.017C7.56928 16 8.017 15.5523 8.017 15V9C8.017 8.44772 7.56928 8 7.017 8H3.017C2.46472 8 2.017 7.55228 2.017 7V3L5.017 3C7.77842 3 10.017 5.23858 10.017 8V15C10.017 18.3137 7.33072 21 4.017 21H2.017Z" />
-              </svg>
-            </div>
-            
             <p className="text-[#d4af37] font-bold text-lg sm:text-xl mb-10 leading-tight whitespace-pre-wrap relative z-10">{t.greeting_name}</p>
             <div className="space-y-6 opacity-80 leading-relaxed text-sm sm:text-base italic text-left relative z-10">
-              {t.greeting_body_long.split('\n\n').map((para, i) => (
-                <p key={i}>"{para}"</p>
-              ))}
+              {t.greeting_body_long.split('\n\n').map((para, i) => (<p key={i}>"{para}"</p>))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="company" className="py-20 sm:py-32 px-4 sm:px-6 bg-[#0c0d0e]">
-        <div className="max-w-4xl mx-auto text-center fade-in-section">
-          <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-6 tracking-tight">{t.company_title}</h2>
-          <div className="w-16 h-1 bg-[#d4af37] mx-auto mb-12" />
-          <div className="bg-[#17181a] p-10 rounded-[2rem] border border-[#d4af371a]">
-            <h3 className="text-2xl font-bold mb-4">{t.company_name}</h3>
-            <p className="opacity-70">{t.company_desc}</p>
           </div>
         </div>
       </section>
 
       <section id="contact" className="py-20 sm:py-32 px-4 sm:px-6 bg-[#0b0b0c]">
-        <div className="max-w-4xl mx-auto fade-in-section">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-4 tracking-tight">{t.contact_title}</h2>
-            <p className="text-[#d4af37] text-sm sm:text-base tracking-widest">{t.contact_subtitle}</p>
-          </div>
-          
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-5" onSubmit={handleContactSubmit}>
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">{t.contact_name}</label>
-              <input name="name" type="text" className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" required />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">{t.contact_email}</label>
-              <input name="email" type="email" className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" required />
-            </div>
-            <div className="flex flex-col gap-2 md:col-span-2">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">{t.contact_phone}</label>
-              <input name="phone" type="tel" className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" />
-            </div>
-            <div className="flex flex-col gap-2 md:col-span-2">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">{t.contact_message}</label>
-              <textarea name="message" rows={5} className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all resize-none text-sm text-[#e6e4df]" required />
-            </div>
+        <div className="max-w-4xl mx-auto fade-in-section text-center">
+          <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-4 tracking-tight">{t.contact_title}</h2>
+          <p className="text-[#d4af37] mb-16">{t.contact_subtitle}</p>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left" onSubmit={handleContactSubmit}>
+            <input name="name" type="text" placeholder={t.contact_name} className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" required />
+            <input name="email" type="email" placeholder={t.contact_email} className="bg-[#17181a] border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" required />
+            <input name="phone" type="tel" placeholder={t.contact_phone} className="bg-[#17181a] md:col-span-2 border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all text-sm text-[#e6e4df]" />
+            <textarea name="message" rows={5} placeholder={t.contact_message} className="bg-[#17181a] md:col-span-2 border border-[#d4af3726] rounded-xl px-5 py-4 focus:border-[#d4af37] outline-none transition-all resize-none text-sm text-[#e6e4df]" required />
             <div className="md:col-span-2 flex justify-center pt-6">
-              <button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="w-full sm:w-auto px-16 py-5 bg-[#d4af37] text-black font-bold rounded-full hover:bg-[#c29d2e] transition-all transform hover:scale-105 shadow-xl shadow-[#d4af372a] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    送信中...
-                  </>
-                ) : t.contact_send}
+              <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-16 py-5 bg-[#d4af37] text-black font-bold rounded-full hover:bg-[#c29d2e] transition-all transform hover:scale-105 shadow-xl shadow-[#d4af372a] disabled:opacity-50">
+                {isSubmitting ? '送信中...' : t.contact_send}
               </button>
             </div>
           </form>
@@ -463,16 +384,7 @@ const App: React.FC = () => {
 
       <footer className="bg-[#050607] pt-20 pb-12 px-6 border-t border-[#d4af371a]">
         <div className="max-w-7xl mx-auto flex flex-col items-center">
-          <button onClick={() => scrollTo('top')} className="font-serif text-2xl sm:text-3xl font-bold tracking-tight mb-8" style={{ color: gold }}>
-            {t.brand}
-          </button>
-          
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-12 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold opacity-60">
-            {navItems.map((item) => (
-              <button key={item.id} onClick={() => scrollTo(item.id)} className="hover:text-[#d4af37] transition-colors text-[#e6e4df]">{item.label}</button>
-            ))}
-          </div>
-
+          <button onClick={() => scrollTo('top')} className="font-serif text-2xl sm:text-3xl font-bold tracking-tight mb-8" style={{ color: gold }}>{t.brand}</button>
           <div className="text-center opacity-30 text-[9px] sm:text-[10px] tracking-[0.3em] font-medium border-t border-[#d4af371a] pt-8 w-full max-w-lg">
             {t.footer_copyright} {t.footer_rights}
           </div>
